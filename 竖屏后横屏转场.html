@@ -1,5 +1,4 @@
 <!doctype html>
-
 <html lang="zh-cn">
 <script>
     var elem = document.createElement('meta');
@@ -14,13 +13,12 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>转场相关</title>
+    <title>竖屏后横屏转场</title>
 </head>
 <body>
 
 </body>
 </html>
-
 <script src="https://cdn.bootcss.com/zepto/1.0rc1/zepto.min.js"></script>
 <script src="js/lodash.js"></script>
 <script src="js/Scroller.js"></script>
@@ -37,48 +35,65 @@
         'img/p2.jpg',
         'img/p3.jpg'
     ]
-    let app = new PIXI.Application(1040, 600, {
+    //防止屏幕移动
+    $(document).bind("touchmove",function(e){
+        e.preventDefault();
+    });
+    let app = new PIXI.Application(1040,600,{
         transparent: true
     })
-    // app.stage.displayList = new PIXI.DisplayList()
-    // let index1 = new PIXI.DisplayGroup(1, false);
-    let loader = new PIXI.loaders.Loader();//Loader 大写L
-    loader.add(imgArr)
-
+    app.renderer.view.style.position = "absolute";
+    app.renderer.view.style.display = "block";
+    app.renderer.autoResize = true;
+    app.renderer.resize(window.innerWidth, window.innerHeight);
+    let loader = new PIXI.loaders.Loader();
+    loader.add(imgArr);
     let scrollBegin;
     let container = new PIXI.Container();
+
     container.interactive = true
     loader.load(function (loader) {
-
-        var part1 = new PIXI.Container();
-        var part2 = new PIXI.Container();
+        var part1 = new PIXI.Container()
+        var part2 = new PIXI.Container()
+        var part3 = new PIXI.Container()
         var part1bg = createSprite('img/bg2.jpg');
+        var part1peo = createSprite('img/p1.jpg');
+        part1peo.width = 150;
+        part1peo.height = 150;
+        var part1Count = 0
+        var partiTicker = new PIXI.ticker.Ticker();
+        partiTicker.start();
+        partiTicker.add(function () {
+            part1Count+=0.25;
+            part1peo.scale.x += Math.sin(part1Count*0.4) *0.005
+        })
         var part2bg = createSprite('img/bg3.jpg');
-        part1.addChild(part1bg);
+        var part3bg = createSprite('img/bg1.jpg');
+
+        part1.addChild(part1bg,part1peo);
         part2.addChild(part2bg);
-        //下面的动画效果 是让一个元素进行自动的放大缩小的 yoyo是从大到小又从小到大 循环进行变化
-        // TweenMax.fromTo(part1bg.scale,0.6,{ x:1,y:1},{ x:1.1,y:1.1 }).repeat(-1).yoyo(true);
-        container.addChild(part2,part1);
+        part3.addChild(part3bg);
+        container.addChild(part3,part2,part1);
         app.stage.addChild(container);
         document.body.appendChild(app.view)
-
         scrollBegin = function () {
-            var scroller = new Scroller(function (left, top, zoom) {
-                // container.y = -top;  //重点
-
-                if (0 < top && top < 1000) {
-                    //放大缩小的时候 同时移动该元素的位置，模拟出在中间缩放的感觉
-                    console.log(top)
-                    part1bg.alpha = scrollNum(0,1000,top,1,-1.5,'right')
-                    part1bg.scale.x = scrollNum(0,1000,top,1,2.5,'right');
-                    part1bg.scale.y = scrollNum(0,1000,top,1,2.5,'right');
-                    part1bg.x = scrollNum(0,1000,top,0,400,'left');
-                    part1bg.y = scrollNum(0,1000,top,0,600,'left');
-                    part2bg.alpha = scrollNum(0,1000,top,0,1,'right')
-                     console.log(scrollNum(0,1000,top,1,-1,'right'))
+            var scroller = new Scroller (function (left,top,zoom) {
+                console.log(top)
+                if(0<top && top<1000){
+                    part1.y = -top
                 }
-                // console.log(left, top, zoom)
-            }, {
+                if(1000<top && top<1265) {
+                    part2bg.x = scrollNum(1000,1265,top,0,120,'left')
+                }
+                if(1266<top && top<2266) {
+                    part2bg.scale.x = scrollNum(1266,2266,top,1,1.5,'right');
+                    part2bg.scale.y = scrollNum(1266,2266,top,1,1.5,'right');
+                    part2bg.x = scrollNum(1266,2266,top,-130,400,'left');
+                    part2bg.y = scrollNum(1266,2266,top,0,400,'left');
+                    part2bg.alpha = scrollNum(1266,2266,top,1,-1,'right')
+                    part3bg.alpha = scrollNum(1266,2266,top,0,1,'right')
+                }
+            },{
                 zooming: true,
                 bouncing: false
             })
@@ -104,13 +119,9 @@
                 scroller.doTouchEnd(e.timeStamp);
                 mousedown = false;
             }, false);
-
         }
         scrollBegin()
-
-
     })
-
     function scrollNum(minNum, maxNum, top, oriNum, speed, direction) {
         if (direction && direction == 'right') {
             return oriNum + ((top - minNum) / (maxNum - minNum) * speed)
