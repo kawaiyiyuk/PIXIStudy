@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>tweenMax</title>
+    <style>
+        .div1 {
+            width: 50px;
+            height: 50px;
+            background-color: lightseagreen;
+        }
+        .div2 {
+            width: 50px;
+            height: 50px;
+            background-color: blueviolet;
+        }
+        .div3 {
+            width: 50px;
+            height: 50px;
+            background-color: yellowgreen;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="div1">
+
+    </div>
+    <div class="div2"></div>
+    <div class="div3"></div>
+</body>
+</html>
+<script src="js/TweenMax.min.js"></script>
+<script src="https://cdn.bootcss.com/zepto/1.2.0/zepto.min.js"></script>
+<script>
+    let div = $('.div1');
+    let div2 = $('.div2');
+    let div3= $('.div3');
+    TweenMax.fromTo(div,3,{x:0},{x:400,ease:Linear.easeNone}).repeat(-1).delay(0).repeatDelay(0)
+    TweenMax.fromTo(div2,2.5,{x:0},{x:400,ease:Linear.easeNone}).repeat(-1).delay(0.7).repeatDelay(0)
+    TweenMax.fromTo(div3,2,{x:0},{x:400,ease:Linear.easeNone}).repeat(-1).delay(0.3).repeatDelay(0)
+</script>

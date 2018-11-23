@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>精灵分组</title>
+    <script src="js/pixi.min.js"></script>
+
+</head>
+<body>
+
+</body>
+</html>
+<script>
+    let app = new PIXI.Application({
+        width:512,
+        height:512,
+        antialias: true,
+        transparent: true,
+        resolution: 1
+    })
+
+    document.body.appendChild(app.view);
+    PIXI.loader
+    .add('img/treasureHunter.json')
+    .load(setup);
+
+    let people, door, bolb,id
+    function setup () {
+        id = PIXI.loader.resources['img/treasureHunter.json'].textures;
+        people = new PIXI.Sprite(id['amg1_fr2.gif']);
+        door = new PIXI.Sprite(id['avt3_fr2.gif']);
+        bolb = new PIXI.Sprite(id['dvl1_fr1.gif']);
+
+        people.position.set(16,16);
+        door.position.set(32,32);
+        bolb.position.set(64,64);
+
+        let animals = new PIXI.Container();
+        animals.addChild(people);
+        animals.addChild(door);
+        animals.addChild(bolb);
+        animals.position.set(64,64);
+        app.stage.addChild(animals);
+    }
+</script>

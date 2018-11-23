@@ -1,0 +1,131 @@
+<!doctype html>
+
+<html lang="zh-cn">
+<script>
+    var elem = document.createElement('meta');
+    console.log(window.screen.width)
+    var h = window.screen.width / 640;
+    elem.name = 'viewport';
+    elem.content = 'width=device-width,user-scalable=no,initial-scale=' + h;
+    document.getElementsByTagName('head')[0].appendChild(elem);
+</script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>转场相关</title>
+</head>
+<body>
+
+</body>
+</html>
+
+<script src="https://cdn.bootcss.com/zepto/1.0rc1/zepto.min.js"></script>
+<script src="js/lodash.js"></script>
+<script src="js/Scroller.js"></script>
+<script src="js/Animate.js"></script>
+<script src="js/pixi.min.js"></script>
+<script src="js/pixi-display.js"></script>
+<script src="js/TweenMax.min.js"></script>
+<script>
+    let imgArr = [
+        'img/bg.jpg',
+        'img/bg2.jpg',
+        'img/bg3.jpg',
+        'img/p1.jpg',
+        'img/p2.jpg',
+        'img/p3.jpg'
+    ]
+    let app = new PIXI.Application(1040, 600, {
+        transparent: true
+    })
+    // app.stage.displayList = new PIXI.DisplayList()
+    // let index1 = new PIXI.DisplayGroup(1, false);
+    let loader = new PIXI.loaders.Loader();//Loader 大写L
+    loader.add(imgArr)
+
+    let scrollBegin;
+    let container = new PIXI.Container();
+    container.interactive = true
+    loader.load(function (loader) {
+
+        var part1 = new PIXI.Container();
+        var part2 = new PIXI.Container();
+        var part1bg = createSprite('img/bg2.jpg');
+        var part2bg = createSprite('img/bg3.jpg');
+        part1.addChild(part1bg);
+        part2.addChild(part2bg);
+        // TweenMax.fromTo(part1bg.scale,0.6,{ x:1,y:1},{ x:1.1,y:1.1 }).repeat(-1).yoyo(true);
+        container.addChild(part2,part1);
+        app.stage.addChild(container);
+        document.body.appendChild(app.view)
+
+        scrollBegin = function () {
+            var scroller = new Scroller(function (left, top, zoom) {
+                // container.y = -top;  //重点
+
+                if (0 < top && top < 1000) {
+                    //放大缩小的时候 同时移动该元素的位置，模拟出在中间缩放的感觉
+                    console.log(top)
+                    part1bg.alpha = scrollNum(0,1000,top,1,-1.5,'right')
+                    part1bg.scale.x = scrollNum(0,1000,top,1,2.5,'right');
+                    part1bg.scale.y = scrollNum(0,1000,top,1,2.5,'right');
+                    part1bg.x = scrollNum(0,1000,top,0,400,'left');
+                    part1bg.y = scrollNum(0,1000,top,0,600,'left');
+                    part2bg.alpha = scrollNum(0,1000,top,0,1,'right')
+                     console.log(scrollNum(0,1000,top,1,-1,'right'))
+                }
+                // console.log(left, top, zoom)
+            }, {
+                zooming: true,
+                bouncing: false
+            })
+            scroller.setDimensions(app.view.clientWidth, app.view.clientHeight, app.view.offsetWidth, 8000)
+            var mousedown = false;
+            document.addEventListener("touchstart", function (e) {
+                scroller.doTouchStart(e.touches, e.timeStamp);
+                mousedown = true;
+            }, false);
+
+            document.addEventListener("touchmove", function (e) {
+                if (!mousedown) {
+                    return;
+                }
+                scroller.doTouchMove(e.touches, e.timeStamp);
+                mousedown = true;
+            }, false);
+
+            document.addEventListener("touchend", function (e) {
+                if (!mousedown) {
+                    return;
+                }
+                scroller.doTouchEnd(e.timeStamp);
+                mousedown = false;
+            }, false);
+
+        }
+        scrollBegin()
+
+
+    })
+
+    function scrollNum(minNum, maxNum, top, oriNum, speed, direction) {
+        if (direction && direction == 'right') {
+            return oriNum + ((top - minNum) / (maxNum - minNum) * speed)
+        } else {
+            return oriNum - ((top - minNum) / (maxNum - minNum) * speed)
+        }
+    }
+
+    function createSprite(name, opt) {
+        var newSprite = new PIXI.Sprite.fromImage(name);
+
+        if (opt) {
+            _.forIn(opt, function (value, key) {
+                newSprite[key] = value
+            })
+        }
+        return newSprite
+    }
+</script>

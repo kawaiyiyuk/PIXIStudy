@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/Scroller.js"></script>
+    <script src="js/Animate.js"></script>
+    <style>
+        .main {
+            height: 2000px;
+            background-color: aquamarine;
+        }
+    </style>
+</head>
+<body>
+    <div id="divdome" class="main">
+
+    </div>
+    <h1>
+        标题
+    </h1>
+</body>
+</html>
+
+<script>
+    function scrollNum(minNum,maxNum,top,oriNum,speed,direction) {
+        if(direction && direction == 'right') {
+            return oriNum + ((top-minNum)/(maxNum-minNum)*speed)
+        }else {
+            return oriNum - ((top-minNum)/(maxNum-minNum)*speed)
+        }
+    }
+    let div = document.getElementById('divdome');
+    let scrollBegin = function () {
+        var scroller = new Scroller(function(left,top,zoom){
+            console.log(left,top)
+        },{
+            zooming:true,
+            bouncing:false
+        });
+        console.log(div.clientWidth,div.clientHeight, div.offsetWidth, div.offsetHeight)
+        scroller.setDimensions(div.clientWidth,div.clientHeight, div.offsetWidth, div.offsetHeight)
+        let mousedown = false
+        div.addEventListener('touchstart',function(e){
+            scroller.doTouchStart(e.touches,e.timeStamp);
+            mousedown = true
+        },false)
+        div.addEventListener('touchmove',function(e){
+            if(!mousedown){
+                return
+            }
+            scroller.doTouchMove(e.touches,e.timeStamp);
+            mousedown = true
+        },false)
+        div.addEventListener('touchend',function(e) {
+            if(!mousedown) {
+                return
+            }
+            scroller.doTouchEnd(e.timeStamp);
+            mousedown = false
+        },false)
+
+    };
+    scrollBegin()
+</script>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Loding</title>
+    <script src="https://cdn.bootcss.com/zepto/1.2.0/zepto.min.js"></script>
+</head>
+<body>
+    <div id="div">
+
+    </div>
+</body>
+</html>
+<script>
+    let imgArr = [
+            'img/bg.jpg',
+            'img/bg1.jpg',
+            'img/bg2.jpg',
+            'img/bg3.jpg',
+            'img/p1.jpg',
+            'img/p2.jpg',
+            'img/p3.jpg',
+    ]
+    function lodingFn(imgs,callback){
+        // 加载图片进度 加载完毕后执行回掉函数
+        if(!imgs) {return false};
+        let img = []
+        let len = imgs.length;
+
+        let loadedCount = 0;
+        for (let i=0 ;i<len ;i++){
+
+            img[i] = new Image()
+            img[i].src = imgs[i];
+            img[i].onload = function () {
+                loadedCount ++;
+                // div.innerHTML = Math.floor(loadedCount/len*100) + '%';
+                $('#div').html(Math.floor(loadedCount/len*100) + '%').attr('title',Math.floor(loadedCount/len*100));
+                if(loadedCount>=len) {//加载完毕
+                    callback?callback():null
+                }
+            }
+        }
+    }
+    lodingFn(imgArr,function () {
+        console.log('is aldey')
+    })
+
+</script>

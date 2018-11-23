@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-cn">
+<script>
+    var elem = document.createElement('meta');
+    console.log(window.screen.width)
+    var h = window.screen.width/640;
+    elem.name = 'viewport';
+    elem.content = 'width=device-width,user-scalable=no,initial-scale='+h;
+    document.getElementsByTagName('head')[0].appendChild(elem);
+</script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>demo4</title>
+
+    <style>
+        #main {
+            width: 640px;
+            height: 1040px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            overflow: hidden;
+            -webkit-background-size: 100% 100%;
+            background-size: 100% 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="main">
+
+</div>
+</body>
+</html>
+<script src="https://cdn.bootcss.com/zepto/1.0rc1/zepto.min.js"></script>
+<script src="js/lodash.js"></script>
+<script src="js/Scroller.js"></script>
+<script src="js/Animate.js"></script>
+<script src="js/pixi.min.js"></script>
+<script src="js/pixi-display.js"></script>
+<script src="js/TweenMax.min.js"></script>
+<script>
+    window.onload = function () {
+        let div = document.getElementById('main')
+        var scrollBegin;
+        imgArr = [
+            'img/bg.jpg',
+            'img/bg2.jpg',
+            'img/bg3.jpg',
+            'img/p1.jpg',
+            'img/p2.jpg',
+            'img/p3.jpg'
+        ]
+        let app = new PIXI.Application(1040,640,{
+            transparent: true
+        });
+        app.stage.displayList = new PIXI.DisplayList()
+        let index1 = new PIXI.DisplayGroup(1, false);
+        //console.log(app.stage.displayList)
+        let loader = new PIXI.loaders.Loader();
+        loader.add(imgArr);
+        app.renderer.view.style.position = "absolute";
+        app.renderer.view.style.display = "block";
+        app.renderer.autoResize = true;
+        app.renderer.resize(window.innerWidth, window.innerHeight);
+
+        let container = new PIXI.Container();
+
+
+
+
+
+
+        container.interactive = true
+        loader.load(function(loader){
+            var part1 = new PIXI.Container();
+            var part1Bg =createSprite('img/bg2.jpg')
+            var part1PageD1 = createSprite('img/p1.jpg',{
+                x:400,
+                width:100,
+                height:100
+            })
+            part1.addChild(part1Bg,part1PageD1)
+
+
+
+            //part2
+            var part2 = new PIXI.Container();
+            part2.y = part1.height-1
+            var part2bg = createSprite('img/bg3.jpg');
+            var partpeo1 = createSprite('img/p2.jpg',{
+                x:100,
+                y:100,
+                alpha:0
+            });
+            //TweenMax.fromTo(partpeo1,3,{ alpha : 0},{alpha : 1,ease:Linear.easeNone}).repeat(-1).delay(0.8).repeatDelay(0);
+            partpeo1.width = 100;
+            partpeo1.height = 100;
+            part2.addChild(part2bg,partpeo1)
+            container.addChild(part2,part1)
+            app.stage.addChild(container)
+            scrollBegin  = function () {
+                var scroller = new Scroller(function (left, top, zoom) {
+                    container.y = -top;  //重点
+
+                    console.log(left, top)
+
+                    if(0<top && top<1000) {
+                        part1PageD1.y = scrollNum(0,1000,top,0,1200,'right')
+
+                    }
+                    if(150<top&& top<400) {
+                        partpeo1.alpha = scrollNum(150,400,top,0,1,'right')
+
+                    }
+                }, {
+                    zooming: true,
+                    bouncing: false
+                });
+                scroller.setDimensions(app.view.clientWidth, app.view.clientHeight, app.view.offsetWidth, 8000)
+
+                var mousedown = false;
+                document.addEventListener("touchstart", function (e) {
+                    scroller.doTouchStart(e.touches, e.timeStamp);
+                    mousedown = true;
+                }, false);
+
+                document.addEventListener("touchmove", function (e) {
+                    if (!mousedown) {
+                        return;
+                    }
+                    scroller.doTouchMove(e.touches, e.timeStamp);
+                    mousedown = true;
+                }, false);
+
+                document.addEventListener("touchend", function (e) {
+                    if (!mousedown) {
+                        return;
+                    }
+                    scroller.doTouchEnd(e.timeStamp);
+                    mousedown = false;
+                }, false);
+            };
+            scrollBegin();
+
+
+        })
+        div.appendChild(app.view)
+
+
+
+
+        function scrollNum(minNum,maxNum,top,oriNum,speed,direction) {
+            if(direction && direction == 'right') {
+                return oriNum + ((top-minNum)/(maxNum-minNum)*speed)
+            }else {
+                return oriNum - ((top-minNum)/(maxNum-minNum)*speed)
+            }
+        }
+
+        function createSprite(name,opt) {
+            var newSprite = new PIXI.Sprite.fromImage(name);
+
+            if(opt) {
+                _.forIn(opt,function(value,key){
+                    newSprite[key] = value
+                })
+            }
+            return newSprite
+        }
+        function createAnimatedSprite(name, num, opt, start) {
+            // 用json 资源创建一个 AnimatedSprite 对象
+            var Textures = [],
+                i, AnimatedSpriteInstance;
+            i = start || 0;
+            for (; i < num; i++) {
+                var Texture = PIXI.Texture.fromImage(name + i + '.png');
+                Textures.push(Texture);
+            }
+            AnimatedSpriteInstance = new PIXI.extras.AnimatedSprite(Textures);
+            if (opt) {
+                _.forIn(opt, function(value, key) {
+                    AnimatedSpriteInstance[key] = value;
+                });
+            }
+            return AnimatedSpriteInstance;
+        }
+    }
+
+</script>

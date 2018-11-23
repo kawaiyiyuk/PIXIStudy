@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="js/pixi.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+
+</body>
+</html>
+<script>
+    let app = new PIXI.Application({
+        width:600,
+        height:600,
+        antialias:true,
+        transparent:false,
+        resolution:1
+    })
+    console.log(app.view.width)
+    document.body.appendChild(app.view);
+    PIXI.loader
+    .add('img/treasureHunter.json')
+    .load(setup);
+    let img1 ,img2 ,img3,id;
+    let cat ;
+    function setup () {
+        let img1 = PIXI.TextureCache['avt3_fr2.gif'];
+        img1 = new PIXI.Sprite(img1)
+        img1.x = app.stage.width - img1.width -48;
+        img1.y = app.stage.height /2 - img1.height /2 ;
+        app.stage.addChild(img1);
+
+        let img2 = new PIXI.Sprite(
+            PIXI.loader.resources['img/treasureHunter.json'].textures['amg1_fr2.gif']
+        )
+        img2.x = 68;
+        console.log(app.view.height);
+        console.log(app.view.width);
+        img2.y = app.view.height/2 - img2.height / 2;
+        app.stage.addChild(img2)
+
+        id = PIXI.loader.resources['img/treasureHunter.json'].textures;
+        console.log(id)
+        PIXI.treasure = new PIXI.Sprite(id['dvl1_fr1.gif'])
+
+        let num = 6,
+            spacing = 48,
+            xOffset = 150;
+
+        for (let i= 0;i< num;i++){
+            let blob = new PIXI.Sprite(id['zph1_fr1.gif']);
+            let x = spacing * i + xOffset;
+            let y = randomInt(1,app.view.height - blob.height);
+            blob.x = x ;
+            blob.y = y;
+            console.log(y)
+            app.stage.addChild(blob)
+
+        }
+
+        cat = new PIXI.Sprite(
+            PIXI.loader.resources['img/treasureHunter.json'].textures['amg1_fr2.gif']
+        )
+        cat.x = 96;
+        cat.y = app.stage.height/2 - cat.height /2;
+
+        // cat.y = 96;
+        // cat.vx = 0;
+        // cat.vy = 0
+        // app.stage.addChild(cat);
+        state = play;
+        app.ticker.add(delta => gameLoop(delta));
+
+        function gameLoop (delta) {
+            state(delta)
+        }
+
+        function play (delta) {
+            cat.vx = 1 ;
+            cat.x += cat.vx
+        }
+    }
+    //下面这行是 在min和max当中取值
+    function randomInt(min,max) {
+        return Math.floor(Math.random()* (max-min +1)) +min
+    }
+</script>
+
